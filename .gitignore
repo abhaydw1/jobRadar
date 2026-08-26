@@ -1,0 +1,13 @@
+node_modules/
+client/dist/
+.env
+*.log
+
+# scratch / non-project files
+ashby_nextdata.json
+ashby_tmp.html
+test.cpp
+test.exe
+test_check.exe
+test2.cpp
+.cph/
