@@ -8,16 +8,28 @@ const EXPERIENCE_LABELS = {
 };
 
 export default function JobCard({ job, saved, onToggleSave }) {
+  const hasMatch = typeof job.matchScore === "number" && job.matchScore > 0;
+
   return (
     <div className="flex flex-col gap-3 rounded-md border border-gray-200 p-4 dark:border-gray-800">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <Link
-            to={`/jobs/${job.id}`}
-            className="text-base font-semibold text-gray-900 hover:underline dark:text-white"
-          >
-            {job.title}
-          </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to={`/jobs/${job.id}`}
+              className="text-base font-semibold text-gray-900 hover:underline dark:text-white"
+            >
+              {job.title}
+            </Link>
+            {hasMatch && (
+              <span
+                title={job.matchReasons?.join(" · ") ?? ""}
+                className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              >
+                {job.matchScore}% match
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {job.company} · {job.location}
             {job.remote && job.location !== "Remote" ? " · Remote" : ""}

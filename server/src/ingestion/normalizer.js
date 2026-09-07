@@ -92,7 +92,10 @@ function extractSkills(title, description) {
 }
 
 export function normalizeRawJob(rawJob) {
-  const description = stripHtml(rawJob.descriptionHtml);
+  // Ashby provides plain text directly; Greenhouse provides HTML that needs stripping.
+  const description = rawJob.descriptionPlain
+    ? rawJob.descriptionPlain.replace(/\s+/g, " ").trim()
+    : stripHtml(rawJob.descriptionHtml);
   const experienceLevel = EXPERIENCE_LEVELS.includes(rawJob.experienceLevel)
     ? rawJob.experienceLevel
     : inferExperienceLevel(rawJob.title);
@@ -112,3 +115,4 @@ export function normalizeRawJob(rawJob) {
     sourceUrl: rawJob.sourceUrl,
   };
 }
+

@@ -41,6 +41,14 @@ export default function Navbar() {
               >
                 Preferences
               </Link>
+              {user.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Admin
+                </Link>
+              )}
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {user.name}
               </span>

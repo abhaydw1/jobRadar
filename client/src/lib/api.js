@@ -27,11 +27,17 @@ export const api = {
     request("/api/auth/login", { method: "POST", body: JSON.stringify(body) }),
   logout: () => request("/api/auth/logout", { method: "POST" }),
   me: () => request("/api/auth/me"),
+  getMe: () => request("/api/users/me"),
   updatePreferences: (preferences) =>
     request("/api/users/me/preferences", {
       method: "PATCH",
       body: JSON.stringify(preferences),
     }),
-  getJobs: () => request("/api/jobs"),
+  // page and limit are optional; server defaults to page=1, limit=50
+  getJobs: ({ page = 1, limit = 50 } = {}) =>
+    request(`/api/jobs?page=${page}&limit=${limit}`),
   getJob: (id) => request(`/api/jobs/${id}`),
+  // Admin endpoints
+  getAdminStats: () => request("/api/admin/stats"),
+  triggerIngest: () => request("/api/admin/ingest", { method: "POST" }),
 };

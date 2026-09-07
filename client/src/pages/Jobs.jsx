@@ -10,6 +10,8 @@ const EXPERIENCE_OPTIONS = [
   { value: "senior", label: "Senior" },
 ];
 
+const MATCH_THRESHOLD = 30;
+
 function tabButtonClass(active) {
   return `rounded-md border px-3 py-1.5 text-sm font-medium ${
     active
@@ -21,6 +23,8 @@ function tabButtonClass(active) {
 export default function Jobs() {
   const { savedIds, toggleSave } = useSavedJobs();
   const [jobs, setJobs] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("all");
@@ -29,12 +33,17 @@ export default function Jobs() {
   const [location, setLocation] = useState("all");
 
   useEffect(() => {
+    setLoading(true);
+    setError("");
     api
-      .getJobs()
-      .then((data) => setJobs(data.jobs))
+      .getJobs({ page, limit: 50 })
+      .then((data) => {
+        setJobs(data.jobs);
+        setPagination(data.pagination);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   const locations = useMemo(
     () => [...new Set(jobs.map((job) => job.location))].sort(),
@@ -49,10 +58,16 @@ export default function Jobs() {
     );
   }
 
+  function changeTab(newTab) {
+    setTab(newTab);
+    setPage(1);
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return jobs.filter((job) => {
       if (tab === "saved" && !savedIds.has(job.id)) return false;
+      if (tab === "matched" && (job.matchScore ?? 0) < MATCH_THRESHOLD) return false;
       if (
         experienceLevels.length &&
         !experienceLevels.includes(job.experienceLevel)
@@ -69,6 +84,11 @@ export default function Jobs() {
     });
   }, [jobs, tab, query, experienceLevels, location, savedIds]);
 
+  const matchedCount = useMemo(
+    () => jobs.filter((j) => (j.matchScore ?? 0) >= MATCH_THRESHOLD).length,
+    [jobs],
+  );
+
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -76,14 +96,21 @@ export default function Jobs() {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setTab("all")}
+            onClick={() => changeTab("all")}
             className={tabButtonClass(tab === "all")}
           >
             All
           </button>
           <button
             type="button"
-            onClick={() => setTab("saved")}
+            onClick={() => changeTab("matched")}
+            className={tabButtonClass(tab === "matched")}
+          >
+            Matched {matchedCount > 0 ? `(${matchedCount})` : ""}
+          </button>
+          <button
+            type="button"
+            onClick={() => changeTab("saved")}
             className={tabButtonClass(tab === "saved")}
           >
             Saved ({savedIds.size})
@@ -150,7 +177,9 @@ export default function Jobs() {
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {tab === "saved"
             ? "You haven't saved any jobs yet."
-            : "No jobs match your filters."}
+            : tab === "matched"
+              ? "No matched jobs yet — update your preferences to see matches."
+              : "No jobs match your filters."}
         </p>
       ) : (
         <div className="flex flex-col gap-4">
@@ -162,6 +191,31 @@ export default function Jobs() {
               onToggleSave={toggleSave}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination && pagination.pages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-gray-700"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Page {pagination.page} of {pagination.pages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+            disabled={page >= pagination.pages}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-gray-700"
+          >
+            Next →
+          </button>
         </div>
       )}
     </div>

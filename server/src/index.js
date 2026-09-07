@@ -9,6 +9,8 @@ import authRouter from "./routes/auth.js";
 import healthRouter from "./routes/health.js";
 import jobsRouter from "./routes/jobs.js";
 import usersRouter from "./routes/users.js";
+import adminRouter from "./routes/admin.js";
+import { startScheduler } from "./scheduler.js";
 
 if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = crypto.randomBytes(32).toString("hex");
@@ -34,6 +36,7 @@ app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/jobs", jobsRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
@@ -45,6 +48,8 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`[server] Listening on http://localhost:${PORT}`);
   });
+  // Start the ingestion scheduler after DB is connected
+  startScheduler();
 }
 
 start();

@@ -2,10 +2,14 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "../config/db.js";
 import { createGreenhouseAdapter } from "../ingestion/sources/greenhouse.js";
+import { createAshbyAdapter } from "../ingestion/sources/ashby.js";
 import { runIngestion } from "../ingestion/orchestrator.js";
 
 const ADAPTERS = [
   createGreenhouseAdapter({ companyToken: "gitlab", companyName: "GitLab" }),
+  createGreenhouseAdapter({ companyToken: "stripe", companyName: "Stripe" }),
+  createAshbyAdapter({ companySlug: "ramp", companyName: "Ramp" }),
+  createAshbyAdapter({ companySlug: "notion", companyName: "Notion" }),
 ];
 
 async function main() {

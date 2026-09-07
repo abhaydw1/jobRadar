@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Preferences from "./pages/Preferences";
 import Jobs from "./pages/Jobs";
 import JobDetails from "./pages/JobDetails";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
@@ -46,6 +48,14 @@ function App() {
             <ProtectedRoute>
               <JobDetails />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin"
+          element={
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
           }
         />
       </Route>

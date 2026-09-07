@@ -39,6 +39,21 @@ function sanitizeExperienceLevels(value) {
   );
 }
 
+// GET /api/users/me
+router.get(
+  "/me",
+  requireAuth,
+  requireDb,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(401).json({ error: "Not authenticated." });
+    }
+    res.json({ user: toPublicUser(user) });
+  }),
+);
+
+// PATCH /api/users/me/preferences
 router.patch(
   "/me/preferences",
   requireAuth,
